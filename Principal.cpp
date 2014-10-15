@@ -9,7 +9,7 @@ bool Principal::debug = false;
 //===========================
 Principal::Principal(): metaheuristica(0) {
     //Activación del modo debug
-    activarDebug();
+        activarDebug();
 
     //Definición del fichero
     elegirFichero();
