@@ -13,10 +13,10 @@ using namespace std;
 
 int main(void) {
    Principal principal;
-   //principal.iniciarMenu();
+   principal.iniciarMenu();
 
-   unsigned long coste = principal.ejecutarAlgoritmo();
-   cout << "COSTE SOLUCION: " << coste << endl;
+   //unsigned long coste = principal.ejecutarAlgoritmo();
+   //cout << "COSTE SOLUCION: " << coste << endl;
 
    return 0;
 }
