@@ -1,6 +1,6 @@
 /*
  * File:   Principal.h
- * Author: USUARIO
+ * Author: Fco. Gázquez
  *
  * Created on 5 de octubre de 2014, 12:26
  */
@@ -14,7 +14,7 @@
 #include "Resultado.h"
 #include "BL.h"
 
-enum Tipo_Algoritmo {ALG_Greedy,ALG_BL, ALG_BT};
+enum Tipo_Algoritmo {ALG_Greedy, ALG_BL, ALG_BT};
 //Enumeración que define los tres algoritmos empleados en la aplicación
 
 
@@ -36,7 +36,8 @@ class Principal {
         void elegirFichero();
         void elegirAlgoritmo();
         void elegirSemilla();
-        void guardarResultados(unsigned long costeObtenido);
+        void ejecutarAlgoritmo();
+        void guardarResultados(unsigned long costeObtenido, unsigned tiempo);
         //Vuelca los resultados de ejecutar el algoritmo a un fichero
         //con mismo nombre del fichero evaluado
 
@@ -46,8 +47,6 @@ class Principal {
         Principal();
         virtual ~Principal();
         void iniciarMenu();
-
-        unsigned long ejecutarAlgoritmo();
 };
 
 #endif	/* PRINCIPAL_H */

@@ -65,6 +65,8 @@ void Principal::elegirSemilla() {
     srand(semilla);
 }
 
-unsigned long Principal::ejecutarAlgoritmo() {
-    return metaheuristica->ejecutar();
+void Principal::ejecutarAlgoritmo() {
+    //empiezo a medir
+    unsigned long coste = metaheuristica->ejecutar();
+    //termina medicion
 }
