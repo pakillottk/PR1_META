@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <stdlib.h>
 
 /*
  *      Clase base para definir los algoritmos para las metaheurísticas.

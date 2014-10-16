@@ -1,8 +1,7 @@
 
 #include "Metaheuristica.h"
 #include "Principal.h"
-#include <bitset>
-#include <stdlib.h>
+
 
 //CONSTRUCTORES Y DESTRUCTORES
 //===========================

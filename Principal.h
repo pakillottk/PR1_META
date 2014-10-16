@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include "Metaheuristica.h"
-#include "Resultado.h"
 #include "BL.h"
 
 enum Tipo_Algoritmo {ALG_Greedy, ALG_BL, ALG_BT};
