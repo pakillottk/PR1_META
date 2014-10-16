@@ -18,13 +18,32 @@ BT::BT(const std::string& rutaFichero): Metaheuristica(rutaFichero) {
 
 BT::~BT() {
     destruyeMatriz(frec);
-    destruyeMatriz(mem_tabu);
+    destruyeMatriz(mem_tabu);    
 }
 
 //MÉTODOS PUBLIC
 //==============
 unsigned long BT::ejecutar() {
+    if(Principal::debug)
+        cout << "Generando solucion..." << endl;
+    
     generarSolucion();
+    
+    if(Principal::debug) {
+        std::cout << "SOLUCION INICIAL";
+        for(unsigned i = 0; i < tam; i++) {
+            if(!i%tam)
+                std::cout << std::endl;
+            std::cout << solucion[i] << " ";
+        }
+
+        std::cout << std::endl;
+        std::cout << "Coste inicial: " << calculaCoste()
+                  << std::endl;
+    }
+    
+    if(Principal::debug)
+        cout << "Copiando solucion en permutacion auxiliar..." << endl;
     
     unsigned* p = new unsigned[tam];
     for(unsigned i = 0; i < tam; i++) {
@@ -34,10 +53,30 @@ unsigned long BT::ejecutar() {
     unsigned evaluaciones = 0;
     unsigned sinMejora = 0;
     
+    unsigned i;
+    unsigned j;
+    unsigned vecino;
+    long costeMinimo;
+    pair<unsigned, unsigned> mejorMovimiento;
+    long costeActual;
+    unsigned libres;
+    
+    if(Principal::debug)
+        cout << "Iniciando busqueda tabu..." << endl;
+    
     while(evaluaciones < 10000) {
+        if(Principal::debug)
+            cout << "EVALUACION: " << evaluaciones << endl;
+        
         if(sinMejora == 10){
+            if(Principal::debug)
+                cout << "10 evaluaciones sin mejorar, reiniciando..." << endl;
+            
             reiniciar(p);
         }
+        
+        if(Principal::debug)
+            cout << "Actualizando lista tabu..." << endl;
         
         actualizaListaTabu();
         
@@ -46,22 +85,32 @@ unsigned long BT::ejecutar() {
             generados[k] = false;
         }
         
-        unsigned i;
-        unsigned j;
-        unsigned vecino = 0;
-        long costeMinimo = 9999999;
-        pair<unsigned, unsigned> mejorMovimiento;
-        long costeActual;
+        libres = tam;
+        vecino = 0;
+        costeMinimo = 9999999;
+        
+        if(Principal::debug)
+            cout << "Generando vecinos..." << endl;
         
         while(vecino < 30) {           
             do{
+                if(libres == 0)
+                    break;
+                
                 i = rand()%tam;
                 do {
                   j = rand()%tam;
                 }while(j == i);
             }while(esTabu(p, i, j) || (generados[i] && generados[j]));          
             
-            generados[i] = generados[j] = true;
+            if(!generados[i]) {
+                generados[i] = true;
+                libres--;
+            }
+            if(!generados[j]) {
+                generados[j] = true;
+                libres--;
+            }
             
             costeActual = mejoraCambio(p, i, j);
             if(costeActual < costeMinimo) {
@@ -71,11 +120,18 @@ unsigned long BT::ejecutar() {
             }
             
             vecino++;
+        }       
+        
+        if(Principal::debug) {
+            cout << "Actualizando con mejor movimiento..." << endl;
+            cout << "Intercambiar: " << mejorMovimiento.first 
+                 << " por " << mejorMovimiento.second << endl;
         }
         
-        
-        
         if(actualizar(p, mejorMovimiento.first, mejorMovimiento.second)) {
+            if(Principal::debug)
+                cout << "Solucion global mejorada..." << endl;  
+            
             sinMejora = 0;
         } else {
             ++sinMejora;
@@ -83,6 +139,22 @@ unsigned long BT::ejecutar() {
         
         delete [] generados;
         evaluaciones++;
+    }
+    
+    if(Principal::debug)
+        cout << "Fin de la busqueda..." << endl;
+    
+    if(Principal::debug) {
+        std::cout << "SOLUCION";
+        for(unsigned i = 0; i < tam; i++) {
+            if(!i%tam)
+                std::cout << std::endl;
+            std::cout << solucion[i] << " ";
+        }
+
+        std::cout << std::endl;
+        std::cout << "Coste: " << calculaCoste()
+                  << std::endl;
     }
     
     delete [] p;            
@@ -138,11 +210,10 @@ bool BT::esTabu(unsigned*& p, unsigned i, unsigned j) {
 
 bool BT::actualizar(unsigned*& p, unsigned i, unsigned j) {
     bool globalMejorada = false;
+    unsigned costeParcial_p;
+    unsigned costeParcial_sol;
     
-    if(solucion != p) {
-      unsigned costeParcial_p;
-      unsigned costeParcial_sol;
-      
+    if(solucion != p) {     
       costeParcial_p += costeParcial(p, i);
       costeParcial_p += costeParcial(p, j);
       
@@ -169,11 +240,14 @@ void BT::marcarTabu(unsigned*& p, unsigned i, unsigned j) {
     
     pair<unsigned, unsigned> p_i(i, p[i]);
     pair<unsigned, unsigned> p_j(j,p[j]);
+    pair<unsigned,unsigned> to_del;
     
-    if(movimientos.size() == tabuTam) {        
-        pair<unsigned,unsigned> to_del = movimientos.back();
-        mem_tabu[to_del.first][to_del.second] = 0;       
-        movimientos.pop_back();        
+    if(movimientos.size() >= tabuTam-1) {        
+        if(movimientos.size() == tabuTam) {
+            to_del = movimientos.back();
+            mem_tabu[to_del.first][to_del.second] = 0;       
+            movimientos.pop_back();       
+        }
         
         to_del = movimientos.back();
         mem_tabu[to_del.first][to_del.second] = 0;  
@@ -210,10 +284,10 @@ void BT::reiniciarListaTabu() {
 void BT::reiniciar(unsigned*& p) {
     unsigned random = rand() % 100;
     unsigned random_t = rand() % 100;
+    unsigned menosFrecuente;
+    unsigned minFrecuencia;
     
-    if(random < 50) { //usar memoria a largo plazo
-        unsigned menosFrecuente;
-        unsigned minFrecuencia;
+    if(random < 50) { //usar memoria a largo plazo        
         for(unsigned i = 0; i < tam; i++) {
             minFrecuencia = 9999;
             
@@ -244,4 +318,3 @@ void BT::reiniciar(unsigned*& p) {
     
     reiniciarListaTabu();
 }
-

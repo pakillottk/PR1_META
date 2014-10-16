@@ -12,6 +12,7 @@
 #include <string>
 #include <list>
 #include <utility>
+#include "Principal.h"
 #include "Metaheuristica.h"
 using namespace std;
 /*
