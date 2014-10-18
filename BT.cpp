@@ -4,7 +4,7 @@
 //CONSTRUCTORES Y DESTRUCTORES
 //===========================
 BT::BT(const std::string& rutaFichero): Metaheuristica(rutaFichero) {
-    tabuActivo = 5;
+    tabuActivo = 150;
     tabuTam = tam/2;
     
     construyeMatriz(frec); 
@@ -21,7 +21,7 @@ BT::~BT() {
     destruyeMatriz(mem_tabu);    
 }
 
-//MÉTODOS PUBLIC
+//MÃ‰TODOS PUBLIC
 //==============
 unsigned long BT::ejecutar() {
     if(Principal::debug)
@@ -73,6 +73,10 @@ unsigned long BT::ejecutar() {
                 cout << "10 evaluaciones sin mejorar, reiniciando..." << endl;
             
             reiniciar(p);
+            sinMejora = 0;
+            
+            if(Principal::debug)
+                cout << "Busqueda reiniciada..." << endl;
         }
         
         if(Principal::debug)
@@ -101,7 +105,7 @@ unsigned long BT::ejecutar() {
                 do {
                   j = rand()%tam;
                 }while(j == i);
-            }while(esTabu(p, i, j) || (generados[i] && generados[j]));          
+            }while(generados[i] && generados[j]);          
             
             if(!generados[i]) {
                 generados[i] = true;
@@ -112,11 +116,13 @@ unsigned long BT::ejecutar() {
                 libres--;
             }
             
-            costeActual = mejoraCambio(p, i, j);
-            if(costeActual < costeMinimo) {
-                costeMinimo = costeActual;
-                mejorMovimiento.first = i;
-                mejorMovimiento.second = j;
+            if(!esTabu(p, i, j)) {
+                costeActual = mejoraCambio(p, i, j);
+                if(costeActual < costeMinimo) {
+                    costeMinimo = costeActual;
+                    mejorMovimiento.first = i;
+                    mejorMovimiento.second = j;
+                }
             }
             
             vecino++;
@@ -130,10 +136,8 @@ unsigned long BT::ejecutar() {
         
         if(actualizar(p, mejorMovimiento.first, mejorMovimiento.second)) {
             if(Principal::debug)
-                cout << "Solucion global mejorada..." << endl;  
-            
-            sinMejora = 0;
-        } else {
+                cout << "Solucion global mejorada..." << endl; 
+        } else {            
             ++sinMejora;
         }
         
@@ -161,7 +165,7 @@ unsigned long BT::ejecutar() {
     return calculaCoste();
 }
 
-//MÉTODOS PROTECTED
+//MÃ‰TODOS PROTECTED
 //=================
 
 void BT::intercambiar(unsigned*& p, unsigned i, unsigned j) {
@@ -197,21 +201,23 @@ unsigned BT::costeParcial(unsigned*& p, unsigned i) {
 }
 
 bool BT::esTabu(unsigned*& p, unsigned i, unsigned j) { 
-    bool tabu = false; 
+    bool tabu = false;     
     
     if(mejoraCambio(solucion, i, j) < 0) {
         return tabu;
     }    
-      
+    
     tabu = mem_tabu[i][p[j]] > 0 || mem_tabu[j][p[i]] > 0; 
     
     return tabu;
 }
 
-bool BT::actualizar(unsigned*& p, unsigned i, unsigned j) {
+bool BT::actualizar(unsigned*& p, unsigned i, unsigned j) {   
     bool globalMejorada = false;
-    unsigned costeParcial_p;
-    unsigned costeParcial_sol;
+    unsigned costeParcial_p = 0;
+    unsigned costeParcial_sol = 0;
+    
+    intercambiar(p, i,j);
     
     if(solucion != p) {     
       costeParcial_p += costeParcial(p, i);
@@ -226,15 +232,15 @@ bool BT::actualizar(unsigned*& p, unsigned i, unsigned j) {
       }
     }
     
-    intercambiar(p, i,j);
     frec[i][p[i]]++;
     frec[j][p[j]]++;
-    marcarTabu(p, i, j);
+    
+    marcarTabu(p, i, j);  
     
     return globalMejorada;
 }
 
-void BT::marcarTabu(unsigned*& p, unsigned i, unsigned j) {        
+void BT::marcarTabu(unsigned*& p, unsigned i, unsigned j) {    
     mem_tabu[i][p[i]] = tabuActivo;
     mem_tabu[j][p[j]] = tabuActivo;
     
@@ -242,17 +248,11 @@ void BT::marcarTabu(unsigned*& p, unsigned i, unsigned j) {
     pair<unsigned, unsigned> p_j(j,p[j]);
     pair<unsigned,unsigned> to_del;
     
-    if(movimientos.size() >= tabuTam-1) {        
-        if(movimientos.size() == tabuTam) {
-            to_del = movimientos.back();
-            mem_tabu[to_del.first][to_del.second] = 0;       
-            movimientos.pop_back();       
-        }
-        
+    while(movimientos.size() > (tabuTam*2)-2) {
         to_del = movimientos.back();
-        mem_tabu[to_del.first][to_del.second] = 0;  
+        mem_tabu[to_del.first][to_del.second] = 0;
         movimientos.pop_back();
-    }
+    }   
     
     movimientos.push_front(p_i);
     movimientos.push_front(p_j);
@@ -272,9 +272,10 @@ void BT::actualizaListaTabu() {
     }       
 }
 
-void BT::reiniciarListaTabu() {
-    list<pair<unsigned, unsigned> >::iterator it;
-    for(it = movimientos.begin(); it != movimientos.end(); it++) {    
+void BT::reiniciarListaTabu() {    
+    list<pair<unsigned, unsigned> >::iterator it;   
+    unsigned i = 0;
+    for(it = movimientos.begin(); it != movimientos.end(); it++) {       
         mem_tabu[(*it).first][(*it).second] = 0;         
     }    
     
@@ -287,34 +288,50 @@ void BT::reiniciar(unsigned*& p) {
     unsigned menosFrecuente;
     unsigned minFrecuencia;
     
-    if(random < 50) { //usar memoria a largo plazo        
+    bool* asignados = new bool[tam];
+    for(unsigned k = 0; k < tam; k++) {
+        asignados[k] = false;
+    }
+    
+    if(random < 50) { //usar memoria a largo plazo  
+        if(Principal::debug)
+                cout << "Reinicio a solucion poco frecuente..." << endl; 
+        
         for(unsigned i = 0; i < tam; i++) {
             minFrecuencia = 9999;
             
-            for(unsigned j = 0; j < tam; j++) {
-                if(frec[i][j] < minFrecuencia) {
+            for(unsigned j = 0; j < tam; j++) {               
+                if(frec[i][j] < minFrecuencia && !asignados[j]) {                    
                     minFrecuencia = frec[i][j];
                     menosFrecuente = j;
                 }
             }
             
             solucion[i] = menosFrecuente;
+            asignados[menosFrecuente] = true;
         }
     } else {
+        if(Principal::debug)
+            cout << "Solucion aleatoria..." << endl; 
         if(random < 75) { //generar solucion aleatoria
             generarSolucion();
         }
     }
     
-    for(unsigned i = 0; i < tam; i++) {
-        p[i] = solucion[i];
+    delete [] asignados;
+    
+    if(Principal::debug)
+        cout << "Copiando a permutacion auxiliar..." << endl; 
+    
+    for(unsigned k = 0; k < tam; k++) {
+        p[k] = solucion[k];
     }
     
     if(random_t < 50) {
-        tabuTam += tabuTam/2;
+        tabuTam += (tabuTam/2);
     } else {
-        tabuTam -= tabuTam/2;
+        tabuTam -= (tabuTam/2);
     }
     
-    reiniciarListaTabu();
+    reiniciarListaTabu();  
 }
