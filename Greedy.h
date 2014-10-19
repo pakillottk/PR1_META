@@ -1,6 +1,6 @@
 /*
  * File:   Greedy.h
- * Author: Fco. Gázquez
+ * Author: Fasgort
  *
  * Created on 5 de octubre de 2014, 12:40
  */

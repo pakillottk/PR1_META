@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include "Utils.h"
 #include "Metaheuristica.h"
 #include "BL.h"
 
@@ -34,14 +35,11 @@ class Principal {
         void activarDebug();
         void elegirFichero();
         void elegirAlgoritmo();
-        void construirAlgoritmo();
         void elegirSemilla();
         void ejecutarAlgoritmo();
         void guardarResultados(unsigned long costeObtenido, unsigned tiempo);
         //Vuelca los resultados de ejecutar el algoritmo a un fichero
         //con mismo nombre del fichero evaluado
-
-        std::string tipo_str();
 
     public:
         static bool debug; //Activa o desactiva el modo debug
