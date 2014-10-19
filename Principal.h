@@ -31,6 +31,7 @@ class Principal {
         Tipo_Algoritmo tipo;
         std::string fichero;
         unsigned semilla; //Semilla para los generadores pseudoaleatorios
+        Timer tiempo;
         
         void activarDebug();
         void elegirFichero();

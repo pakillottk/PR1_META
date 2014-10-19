@@ -68,7 +68,9 @@ void Principal::elegirSemilla() {
 
 void Principal::ejecutarAlgoritmo() {
     //empiezo a medir
+    tiempo.start();
     unsigned long coste = metaheuristica->ejecutar();
+    tiempo.stop();
     //termina medicion
 }
 
