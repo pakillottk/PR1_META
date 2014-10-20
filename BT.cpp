@@ -4,7 +4,7 @@
 //CONSTRUCTORES Y DESTRUCTORES
 //===========================
 BT::BT(const std::string& rutaFichero): Metaheuristica(rutaFichero) {
-    tabuActivo = 150;
+    tabuActivo = tam*0.10;
     tabuTam = tam/2;
     
     construyeMatriz(frec); 
@@ -21,7 +21,7 @@ BT::~BT() {
     destruyeMatriz(mem_tabu);    
 }
 
-//MÃ‰TODOS PUBLIC
+//METODOS PUBLIC
 //==============
 unsigned long BT::ejecutar() {
     if(Principal::debug)
@@ -105,7 +105,7 @@ unsigned long BT::ejecutar() {
                 do {
                   j = rand()%tam;
                 }while(j == i);
-            }while(generados[i] && generados[j]);          
+           }while(generados[i] && generados[j]);          
             
             if(!generados[i]) {
                 generados[i] = true;
@@ -137,6 +137,8 @@ unsigned long BT::ejecutar() {
         if(actualizar(p, mejorMovimiento.first, mejorMovimiento.second)) {
             if(Principal::debug)
                 cout << "Solucion global mejorada..." << endl; 
+            
+            sinMejora = 0;
         } else {            
             ++sinMejora;
         }
@@ -165,7 +167,7 @@ unsigned long BT::ejecutar() {
     return calculaCoste();
 }
 
-//MÃ‰TODOS PROTECTED
+//METODOS PROTECTED
 //=================
 
 void BT::intercambiar(unsigned*& p, unsigned i, unsigned j) {
@@ -315,6 +317,9 @@ void BT::reiniciar(unsigned*& p) {
             cout << "Solucion aleatoria..." << endl; 
         if(random < 75) { //generar solucion aleatoria
             generarSolucion();
+        } else { //desde mejor global
+            if(Principal::debug)
+                cout << "Partiendo de mejor global..." << endl; 
         }
     }
     
