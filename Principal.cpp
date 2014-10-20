@@ -1,6 +1,6 @@
+
 #include "Principal.h"
-#include "Timer.h"
-using namespace std;
+
 
 //VARIABLES ESTÁTICAS
 //===================

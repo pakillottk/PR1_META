@@ -19,6 +19,8 @@
 #include "BL.h"
 #include "BT.h"
 
+using namespace std;
+
 enum Tipo_Algoritmo {ALG_Greedy, ALG_BL, ALG_BT};
 //Enumeración que define los tres algoritmos empleados en la aplicación
 
