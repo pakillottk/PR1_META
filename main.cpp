@@ -12,8 +12,8 @@ using namespace std;
 
 int main(void) {
    Principal principal;
-   //principal.iniciarMenu();
-
+   principal.iniciarMenu();
+   
    return 0;
 }
 
