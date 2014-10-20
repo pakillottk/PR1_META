@@ -1,4 +1,5 @@
 #include "Principal.h"
+#include "Timer.h"
 using namespace std;
 
 //VARIABLES ESTÁTICAS
@@ -9,7 +10,7 @@ bool Principal::debug = false;
 //===========================
 Principal::Principal(): metaheuristica(0) {
     //Activación del modo debug
-        activarDebug();
+    activarDebug();
 
     //Definición del fichero
     elegirFichero();
@@ -44,10 +45,22 @@ void Principal::activarDebug(){
         Principal::debug = true;
 }
 
-void Principal::elegirFichero() {
-    std::cout << "Nombre del fichero (sin extension): " << std::flush;
-    getline(std::cin >> std::ws, fichero);
-    std::cout << std::endl;
+void Principal::elegirFichero() {    
+    fstream f;
+    string ruta;
+    
+    do {
+        std::cout << "Nombre del fichero (sin extension): " << std::flush;
+        getline(std::cin >> std::ws, fichero);
+        std::cout << std::endl;
+        
+        ruta = "./DAT/" + fichero + ".dat";
+        f.open ( ruta.c_str() , std::ios::in);
+        if(!f.is_open())
+            cout << "No existe el fichero: " << fichero << ".dat" << endl;
+    } while(!f.is_open());
+    
+    f.close();
 }
 
 void Principal::elegirAlgoritmo() {
@@ -55,7 +68,19 @@ void Principal::elegirAlgoritmo() {
         delete metaheuristica;
 
     //Instanciación de la metaheurística
-    metaheuristica = new BL("./DAT/" + fichero + ".dat");
+    switch(tipo) {
+        case ALG_Greedy:
+             //metaheuristica = new Greedy("./DAT/" + fichero + ".dat");
+        break;
+        
+        case ALG_BL:
+             metaheuristica = new BL("./DAT/" + fichero + ".dat");
+        break;
+        
+        case ALG_BT:
+             metaheuristica = new BT("./DAT/" + fichero + ".dat");
+        break;
+    }   
 }
 
 void Principal::elegirSemilla() {
@@ -67,11 +92,30 @@ void Principal::elegirSemilla() {
 }
 
 void Principal::ejecutarAlgoritmo() {
-    //empiezo a medir
+    unsigned long coste;
+    
     tiempo.start();
-    unsigned long coste = metaheuristica->ejecutar();
+    coste = metaheuristica->ejecutar();
     tiempo.stop();
-    //termina medicion
+    
+    cout << "Coste: " << coste;
+    cout << "Tiempo (ms): " << tiempo.getElapsedTimeInMilliSec();
+}
+
+string const Principal::tipo_str() {
+    switch(tipo) {
+        case ALG_Greedy:
+            return "Greedy";
+        break;
+        
+        case ALG_BL:
+            return "BL";
+        break;
+        
+        case ALG_BT:
+            return "BT";
+        break;
+    }
 }
 
 //MÉTODOS PUBLIC
@@ -87,7 +131,7 @@ void Principal::iniciarMenu() {
         cout << "///////////////////Metaheuristicas - Practica 1///////////////////" << endl;
         cout << "//////////////////////////////////////////////////////////////////" << endl << endl;
 
-        cout << "Algoritmo: " /* << LOQUESEA*/ << endl;
+        cout << "Algoritmo: " << tipo_str() << endl;
         cout << "Fichero: " << fichero << ".dat" << endl;
         cout << "Semilla: " << semilla << endl << endl;
 
@@ -135,5 +179,4 @@ void Principal::iniciarMenu() {
         }
 
     } while (true);
-
 }

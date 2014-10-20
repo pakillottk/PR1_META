@@ -10,9 +10,14 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <fstream>
+
 #include "Utils.h"
+#include "Timer.h"
 #include "Metaheuristica.h"
+#include "Greedy.h"
 #include "BL.h"
+#include "BT.h"
 
 enum Tipo_Algoritmo {ALG_Greedy, ALG_BL, ALG_BT};
 //Enumeración que define los tres algoritmos empleados en la aplicación
@@ -41,6 +46,8 @@ class Principal {
         void guardarResultados(unsigned long costeObtenido, unsigned tiempo);
         //Vuelca los resultados de ejecutar el algoritmo a un fichero
         //con mismo nombre del fichero evaluado
+        
+        string const tipo_str();
 
     public:
         static bool debug; //Activa o desactiva el modo debug
