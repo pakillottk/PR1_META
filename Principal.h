@@ -35,8 +35,7 @@ class Principal {
         Metaheuristica* metaheuristica;
         Tipo_Algoritmo tipo;
         std::string fichero;
-        unsigned semilla; //Semilla para los generadores pseudoaleatorios
-        Timer tiempo;
+        unsigned semilla; //Semilla para los generadores pseudoaleatorios       
         
         void construirAlgoritmo();
         void activarDebug();        

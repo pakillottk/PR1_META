@@ -121,15 +121,16 @@ void Principal::construirAlgoritmo() {
 
 void Principal::ejecutarAlgoritmo() {
     unsigned long coste;
+    Timer timer;
     
     construirAlgoritmo();
     
-    tiempo.start();
+    timer.start();
     coste = metaheuristica->ejecutar();
-    tiempo.stop();
+    timer.stop();
     
     cout << "Coste: " << coste << endl;
-    cout << "Tiempo (ms): " << tiempo.getElapsedTimeInMilliSec() << endl;
+    cout << "Tiempo (ms): " << timer.getElapsedTimeInMilliSec() << endl;
     cout << endl;
 }
 
