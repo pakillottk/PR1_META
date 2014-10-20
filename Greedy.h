@@ -10,6 +10,10 @@
 
 #include <iostream>
 #include <string>
+#include <climits>
+
+#include "Metaheuristica.h"
+using namespace std;
 
 /*
  *      Clase que contiene la funcionalidad del

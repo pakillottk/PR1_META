@@ -330,13 +330,15 @@ void BT::reiniciar(unsigned*& p) {
     
     for(unsigned k = 0; k < tam; k++) {
         p[k] = solucion[k];
-    }
+    }    
+    
+    reiniciarListaTabu();  
     
     if(random_t < 50) {
         tabuTam += (tabuTam/2);
+        tabuActivo = tabuActivo * 0.95;
     } else {
         tabuTam -= (tabuTam/2);
+        tabuActivo = tabuActivo * 1.10;
     }
-    
-    reiniciarListaTabu();  
 }

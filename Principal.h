@@ -52,8 +52,8 @@ class Principal {
         string const tipo_str();
 
     public:
-        static bool debug; //Activa o desactiva el modo debug
-
+        static bool debug; //Activa o desactiva el modo debug        
+        
         Principal();
         virtual ~Principal();
         void iniciarMenu();

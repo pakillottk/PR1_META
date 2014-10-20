@@ -9,6 +9,7 @@ bool Principal::debug = false;
 //CONSTRUCTORES Y DESTRUCTORES
 //===========================
 Principal::Principal(): metaheuristica(0) {
+   
     //Activación del modo debug
     activarDebug();
 
@@ -19,7 +20,7 @@ Principal::Principal(): metaheuristica(0) {
     elegirAlgoritmo();
 
     //Elección de semilla
-    elegirSemilla();
+    elegirSemilla();    
 }
 
 Principal::~Principal() {
@@ -106,7 +107,7 @@ void Principal::construirAlgoritmo() {
     //Instanciación de la metaheurística
     switch(tipo) {
         case ALG_Greedy:
-             //metaheuristica = new Greedy("./DAT/" + fichero + ".dat");
+             metaheuristica = new Greedy("./DAT/" + fichero + ".dat");
         break;
         
         case ALG_BL:
@@ -121,6 +122,7 @@ void Principal::construirAlgoritmo() {
 
 void Principal::ejecutarAlgoritmo() {
     unsigned long coste;
+    double tiempo;
     Timer timer;
     
     construirAlgoritmo();
@@ -129,9 +131,42 @@ void Principal::ejecutarAlgoritmo() {
     coste = metaheuristica->ejecutar();
     timer.stop();
     
+    if(tipo == ALG_BT)
+        tiempo = timer.getElapsedTimeInMilliSec();
+    else    
+        tiempo = timer.getElapsedTimeInMicroSec();
+ 
     cout << "Coste: " << coste << endl;
-    cout << "Tiempo (ms): " << timer.getElapsedTimeInMilliSec() << endl;
+    
+    if(tipo == ALG_BT)
+        cout << "Tiempo (ms): " << tiempo << endl;
+    else
+        cout << "Tiempo (microseg): " << tiempo << endl;
+    
     cout << endl;
+    
+    cout << "Guardando resultados..." << endl;
+    guardarResultados(coste, tiempo);
+    cout << "Resultados almacenados" << endl;
+    cout << endl;
+}
+
+void Principal::guardarResultados(unsigned long costeObtenido, unsigned tiempo) {
+    fstream f;
+    string ruta = "./RESULTADOS/" + fichero + ".txt";
+    
+    f.open(ruta.c_str(), ios::out | ios::app);
+    
+    f << "Algoritmo: " << tipo_str() << "\r\n";
+    f << "Semilla: " << semilla << "\r\n";
+    f << "Coste: " << costeObtenido << "\r\n";
+    
+    if(tipo == ALG_BT)
+        f << "Tiempo (ms): " << tiempo  << "\r\n";
+    else
+        f << "Tiempo (microseg): " << tiempo  << "\r\n";
+    f << "\r\n";
+    f.close();
 }
 
 string const Principal::tipo_str() {
