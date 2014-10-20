@@ -64,6 +64,42 @@ void Principal::elegirFichero() {
 }
 
 void Principal::elegirAlgoritmo() {
+    unsigned short opcion;
+    
+    do {
+        cout << "Seleccione algoritmo: " << endl;
+        cout << "1.Greedy" << endl
+             << "2.BL" << endl 
+             << "3.BT" << endl;
+        cout << "Opcion: ";
+        cin >> opcion;
+        cout << endl;
+    } while (opcion < 1 || opcion > 3);
+    
+    switch(opcion) {
+        case 1:
+            tipo = ALG_Greedy;
+        break;
+        
+        case 2:
+            tipo = ALG_BL;
+        break;
+        
+        case 3:
+            tipo = ALG_BT;
+        break;
+    }
+}
+
+void Principal::elegirSemilla() {
+    std::cout << std::endl << "Introduzca la semilla: ";
+    std::cin >> semilla;
+    std::cout << std::endl;
+
+    srand(semilla);
+}
+
+void Principal::construirAlgoritmo() {
     if(metaheuristica)
         delete metaheuristica;
 
@@ -80,26 +116,21 @@ void Principal::elegirAlgoritmo() {
         case ALG_BT:
              metaheuristica = new BT("./DAT/" + fichero + ".dat");
         break;
-    }   
-}
-
-void Principal::elegirSemilla() {
-    std::cout << std::endl << "Introduzca la semilla: ";
-    std::cin >> semilla;
-    std::cout << std::endl;
-
-    srand(semilla);
+    }  
 }
 
 void Principal::ejecutarAlgoritmo() {
     unsigned long coste;
     
+    construirAlgoritmo();
+    
     tiempo.start();
     coste = metaheuristica->ejecutar();
     tiempo.stop();
     
-    cout << "Coste: " << coste;
-    cout << "Tiempo (ms): " << tiempo.getElapsedTimeInMilliSec();
+    cout << "Coste: " << coste << endl;
+    cout << "Tiempo (ms): " << tiempo.getElapsedTimeInMilliSec() << endl;
+    cout << endl;
 }
 
 string const Principal::tipo_str() {

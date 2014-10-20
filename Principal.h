@@ -38,7 +38,8 @@ class Principal {
         unsigned semilla; //Semilla para los generadores pseudoaleatorios
         Timer tiempo;
         
-        void activarDebug();
+        void construirAlgoritmo();
+        void activarDebug();        
         void elegirFichero();
         void elegirAlgoritmo();
         void elegirSemilla();
