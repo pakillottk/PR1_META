@@ -129,19 +129,13 @@ void Principal::ejecutarAlgoritmo() {
     
     timer.start();
     coste = metaheuristica->ejecutar();
-    timer.stop();
-    
-    if(tipo == ALG_BT)
-        tiempo = timer.getElapsedTimeInMilliSec();
-    else    
-        tiempo = timer.getElapsedTimeInMicroSec();
+    timer.stop();    
+   
+    tiempo = timer.getElapsedTimeInMilliSec();
  
-    cout << "Coste: " << coste << endl;
-    
-    if(tipo == ALG_BT)
-        cout << "Tiempo (ms): " << tiempo << endl;
-    else
-        cout << "Tiempo (microseg): " << tiempo << endl;
+    cout << "Coste: " << coste << endl;  
+   
+    cout << "Tiempo (ms): " << tiempo << endl;
     
     cout << endl;
     
@@ -159,12 +153,9 @@ void Principal::guardarResultados(unsigned long costeObtenido, unsigned tiempo) 
     
     f << "Algoritmo: " << tipo_str() << "\r\n";
     f << "Semilla: " << semilla << "\r\n";
-    f << "Coste: " << costeObtenido << "\r\n";
+    f << "Coste: " << costeObtenido << "\r\n";   
     
-    if(tipo == ALG_BT)
-        f << "Tiempo (ms): " << tiempo  << "\r\n";
-    else
-        f << "Tiempo (microseg): " << tiempo  << "\r\n";
+    f << "Tiempo (ms): " << tiempo  << "\r\n"; 
     f << "\r\n";
     f.close();
 }
