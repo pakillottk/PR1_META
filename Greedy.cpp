@@ -68,7 +68,7 @@ unsigned long Greedy::ejecutar() {
 
             if (!puUsado[j]) {
                 
-                if (pFlujo[j] > maxFlujo) {                   
+                if (pFlujo[j] >= maxFlujo) {                   
                     maxFlujo = pFlujo[j];
                     posMax = j;
                 }
