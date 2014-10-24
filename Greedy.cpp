@@ -9,11 +9,30 @@ Greedy::~Greedy() {}
 
 //METODOS PUBLICOS
 //================
-unsigned long Greedy::ejecutar() {  
-    unsigned long *pFlujo = new unsigned long[tam];
-    unsigned long *pDistancia = new unsigned long[tam];
-    bool *puUsado = new bool[tam];
-    bool *plUsado = new bool[tam];
+unsigned long Greedy::ejecutar() {   
+    alg_greedy(solucion, flujo, distancias, tam);
+    
+     if(Principal::debug) {
+        std::cout << "SOLUCION";
+        for(unsigned i = 0; i < tam; i++) {
+            if(!i%tam)
+                std::cout << std::endl;
+            std::cout << solucion[i] << " ";
+        }
+
+        std::cout << std::endl;
+        std::cout << "Coste: " << calculaCoste()
+                  << std::endl;
+    }
+    
+    return calculaCoste();
+}
+
+void Greedy::alg_greedy(unsigned* s, unsigned** f, unsigned** d, unsigned n) {
+    unsigned long *pFlujo = new unsigned long[n];
+    unsigned long *pDistancia = new unsigned long[n];
+    bool *puUsado = new bool[n];
+    bool *plUsado = new bool[n];
        
 
     unsigned long sumaFlujo;
@@ -22,15 +41,15 @@ unsigned long Greedy::ejecutar() {
     if(Principal::debug)
         cout << "Calculando potenciales..." << endl;
     
-    for (unsigned i = 0; i < tam; i++) {
+    for (unsigned i = 0; i < n; i++) {
 
         sumaFlujo = 0;
         sumaDistancia = 0;
 
-        for (unsigned j = 0; j < tam; j++) {
+        for (unsigned j = 0; j < n; j++) {
 
-            sumaFlujo += flujo[i][j];
-            sumaDistancia += distancias[i][j];
+            sumaFlujo += f[i][j];
+            sumaDistancia += d[i][j];
 
         }
         
@@ -60,11 +79,11 @@ unsigned long Greedy::ejecutar() {
         cout << "Calculando solucion..." << endl;
     
   
-    for (unsigned i = 0; i < tam; i++) {
+    for (unsigned i = 0; i < n; i++) {
         maxFlujo = 0;
         minDistancia = INT_MAX;
 
-        for (unsigned j = 0; j < tam; j++) {
+        for (unsigned j = 0; j < n; j++) {
 
             if (!puUsado[j]) {
                 
@@ -88,7 +107,7 @@ unsigned long Greedy::ejecutar() {
 
         puUsado[posMax] = true;
         plUsado[posMin] = true;
-        solucion[posMax] = posMin;
+        s[posMax] = posMin;
     }
     
     
@@ -96,20 +115,5 @@ unsigned long Greedy::ejecutar() {
     delete [] pFlujo;
     delete [] pDistancia;
     delete [] puUsado;
-    delete [] plUsado;
-    
-    if(Principal::debug) {
-        std::cout << "SOLUCION";
-        for(unsigned i = 0; i < tam; i++) {
-            if(!i%tam)
-                std::cout << std::endl;
-            std::cout << solucion[i] << " ";
-        }
-
-        std::cout << std::endl;
-        std::cout << "Coste: " << calculaCoste()
-                  << std::endl;
-    }
-    
-    return calculaCoste();
+    delete [] plUsado;   
 }

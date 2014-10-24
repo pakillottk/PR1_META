@@ -103,7 +103,7 @@ void Principal::elegirSemilla() {
 void Principal::construirAlgoritmo() {
     if(metaheuristica)
         delete metaheuristica;
-
+    
     //Instanciación de la metaheurística
     switch(tipo) {
         case ALG_Greedy:
@@ -115,9 +115,134 @@ void Principal::construirAlgoritmo() {
         break;
         
         case ALG_BT:
-             metaheuristica = new BT("./DAT/" + fichero + ".dat");
+            Config_BT config_bt;
+            bool vecinos_prop;
+            bool reinicios_prop;
+            bool tabuActivo_prop;
+            configurarBT(config_bt, vecinos_prop, reinicios_prop, tabuActivo_prop);
+            
+            metaheuristica = new BT("./DAT/" + fichero + ".dat", 
+                                    config_bt, vecinos_prop, reinicios_prop,
+                                    tabuActivo_prop);
         break;
     }  
+}
+
+void Principal::configurarBT(Config_BT& config, bool& vecinos_prop, 
+                             bool& reinicios_prop, bool& tabuActivo_prop) 
+{
+    char v;
+    int opcion = 0;
+    
+    do {
+        cout << "Seleccione opcion:" << endl;
+        cout << "1.Usar configuracion estandar:" << endl;
+        cout << "   Max. Evaluaciones: 10000" << endl;
+        cout << "   Vecinos: 30" << endl;
+        cout << "   Reinicio en: 10 sin mejorar" << endl;
+        cout << "   Tabu activo: proporcional a tam" << endl;
+        cout << endl;
+        
+        cout << "2.Usar configuracion recomendada:" << endl;
+        cout << "   Max. Evaluaciones: 30000" << endl;
+        cout << "   Vecinos: proporcional a tam" << endl;
+        cout << "   Reinicio en: proporcional a tam" << endl;
+        cout << "   Tabu activo: proporcional a tam" << endl;
+        cout << endl;
+        cout << "3.Usar configuracion personalizada:" << endl;
+        cout << endl;
+        
+        cout << "Opcion: ";
+        cin >> opcion;
+        cout << endl;
+    } while (opcion < 1 || opcion > 3);
+    
+    switch(opcion) {
+        case 1:
+        {
+            config.max_evaluaciones = 10000;
+            config.vecinos = 30;
+            config.reinicio = 10;
+            vecinos_prop = false;
+            reinicios_prop = false;
+            tabuActivo_prop = true;
+            break;
+        }
+        
+        case 2:
+        {
+            config.max_evaluaciones = 30000;           
+            vecinos_prop = true;
+            reinicios_prop = true;
+            tabuActivo_prop = true;
+            break;
+        }
+        
+        case 3: 
+        {
+            config.max_evaluaciones = 0;
+            do {
+                cout << "Maximo de evaluaciones (minimo 10000): ";
+                cin >> config.max_evaluaciones;
+                cout << endl;
+            } while (config.max_evaluaciones < 10000);
+
+            do {
+                cout << "Generacion de vecinos proporcional a tam (s/n): ";
+                cin >> v;  
+                cout << endl;
+            } while(v != 's' && v != 'n');
+
+            if(v =='s') {
+                vecinos_prop = true;
+            } else {
+                vecinos_prop = false;
+                config.vecinos = 0;
+                do{
+                    cout << "Numero de vecinos (minimo 30): ";
+                    cin >> config.vecinos;
+                    cout << endl;
+                } while (config.vecinos < 30);
+            }
+
+            do {
+                cout << "Iteraciones hasta reinicio proporcional a tam (s/n): ";
+                cin >> v;  
+                cout << endl;
+            } while(v != 's' && v != 'n');
+
+            if(v =='s') {
+                reinicios_prop = true;
+            } else {
+                reinicios_prop = false;
+                config.reinicio = 0;
+                do{
+                    cout << "Iteraciones hasta reinicio (minimo 10): ";
+                    cin >> config.reinicio;
+                    cout << endl;
+                } while (config.reinicio < 10);
+            }
+
+            do {
+                cout << "Iteraciones que un mov. es tabu proporcional a tam (s/n): ";
+                cin >> v;  
+                cout << endl;
+            } while(v != 's' && v != 'n');
+
+            if(v =='s') {
+                tabuActivo_prop = true;
+            } else {
+                tabuActivo_prop = false;
+                config.tabuActivo = 0;
+                do{
+                    cout << "Iteraciones que un mov es Tabu (minimo 5): ";
+                    cin >> config.tabuActivo;
+                    cout << endl;
+                } while (config.tabuActivo < 10);
+            }
+            break;
+        }
+    }
 }
 
 void Principal::ejecutarAlgoritmo() {

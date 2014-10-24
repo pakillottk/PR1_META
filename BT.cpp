@@ -3,8 +3,26 @@
 
 //CONSTRUCTORES Y DESTRUCTORES
 //===========================
-BT::BT(const std::string& rutaFichero): Metaheuristica(rutaFichero) {
-    tabuActivo = tam*0.10;
+BT::BT(const std::string& rutaFichero, Config_BT config, bool vecinos_prop,
+       bool reinicios_prop, bool tabuActivo_prop): Metaheuristica(rutaFichero) {
+    
+    max_evaluaciones = config.max_evaluaciones;
+    
+    if(tabuActivo_prop)
+        tabuActivo = tam*0.08;
+    else
+        tabuActivo = config.tabuActivo;
+    
+    if(reinicios_prop)
+        reinicio = tam/3;
+    else
+        reinicio = config.reinicio;
+    
+    if(vecinos_prop)
+        vecinos = tam*0.60;
+    else
+        vecinos = config.vecinos;
+    
     tabuTam = tam/2;
     
     construyeMatriz(frec); 
@@ -13,7 +31,7 @@ BT::BT(const std::string& rutaFichero): Metaheuristica(rutaFichero) {
     for(unsigned i = 0; i < tam; i++)
         for(unsigned j = 0; j < tam; j++) {
             frec[i][j] = mem_tabu[i][j] =  0;
-        }
+        } 
 }
 
 BT::~BT() {
@@ -24,10 +42,33 @@ BT::~BT() {
 //METODOS PUBLIC
 //==============
 unsigned long BT::ejecutar() {
-    if(Principal::debug)
-        cout << "Generando solucion..." << endl;
+    unsigned* p = new unsigned[tam];
     
-    generarSolucion();
+    if(Principal::debug)
+        cout << "Generando solucion aleatoria..." << endl;
+    
+    generarSolucion(); 
+    
+    if(Principal::debug)
+        cout << "Generando solucion Greedy..." << endl;
+    
+    llamarGreedy(p, flujo, distancias, tam);
+    
+    if(calculaCoste() < calculaCoste(p)) {
+        if(Principal::debug)
+            cout << "Copiando solucion aleatoria en permutacion auxiliar..." << endl; 
+
+        for(unsigned i = 0; i < tam; i++) {
+            p[i] = solucion[i];
+        }
+    } else {
+         if(Principal::debug)
+            cout << "Copiando solucion greedy en mejor global..." << endl; 
+         
+        for(unsigned i = 0; i < tam; i++) {
+             solucion[i] = p[i];
+        }
+    }
     
     if(Principal::debug) {
         std::cout << "SOLUCION INICIAL";
@@ -40,15 +81,7 @@ unsigned long BT::ejecutar() {
         std::cout << std::endl;
         std::cout << "Coste inicial: " << calculaCoste()
                   << std::endl;
-    }
-    
-    if(Principal::debug)
-        cout << "Copiando solucion en permutacion auxiliar..." << endl;
-    
-    unsigned* p = new unsigned[tam];
-    for(unsigned i = 0; i < tam; i++) {
-        p[i] = solucion[i];
-    }
+    }   
     
     unsigned evaluaciones = 0;
     unsigned sinMejora = 0;
@@ -64,11 +97,11 @@ unsigned long BT::ejecutar() {
     if(Principal::debug)
         cout << "Iniciando busqueda tabu..." << endl;
     
-    while(evaluaciones < 10000) {
+    while(evaluaciones < max_evaluaciones) {
         if(Principal::debug)
             cout << "EVALUACION: " << evaluaciones << endl;
         
-        if(sinMejora == 10){
+        if(sinMejora == reinicio){
             if(Principal::debug)
                 cout << "10 evaluaciones sin mejorar, reiniciando..." << endl;
             
@@ -96,7 +129,7 @@ unsigned long BT::ejecutar() {
         if(Principal::debug)
             cout << "Generando vecinos..." << endl;
         
-        while(vecino < 30) {           
+        while(vecino < vecinos) {           
             do{
                 if(libres == 0)
                     break;
@@ -170,6 +203,10 @@ unsigned long BT::ejecutar() {
 //METODOS PROTECTED
 //=================
 
+void BT::llamarGreedy(unsigned* p, unsigned** f, unsigned** d, unsigned n) {
+    Greedy::alg_greedy(p, f, d, n);
+}
+
 void BT::intercambiar(unsigned*& p, unsigned i, unsigned j) {
     unsigned aux = p[i];
     p[i] = p[j];
@@ -222,16 +259,11 @@ bool BT::actualizar(unsigned*& p, unsigned i, unsigned j) {
     intercambiar(p, i,j);
     
     if(solucion != p) {     
-      costeParcial_p += costeParcial(p, i);
-      costeParcial_p += costeParcial(p, j);
-      
-      costeParcial_sol += costeParcial(solucion, i);
-      costeParcial_sol += costeParcial(solucion, j);
-      
-      if(costeParcial_p < costeParcial_sol) {
-          intercambiar(solucion, i, j);
-          globalMejorada = true;
-      }
+        if(calculaCoste(p) < calculaCoste()) {
+            globalMejorada = true;
+            for(unsigned i = 0; i < tam; i++)
+                solucion[i] = p[i];
+        }
     }
     
     frec[i][p[i]]++;
@@ -309,36 +341,32 @@ void BT::reiniciar(unsigned*& p) {
                 }
             }
             
-            solucion[i] = menosFrecuente;
+            p[i] = menosFrecuente;
             asignados[menosFrecuente] = true;
+            
+            tabuTam += (tabuTam/2);
+            tabuActivo = tabuActivo * 1.10;
         }
-    } else {
-        if(Principal::debug)
-            cout << "Solucion aleatoria..." << endl; 
+    } else {       
         if(random < 75) { //generar solucion aleatoria
-            generarSolucion();
+             if(Principal::debug)
+                cout << "Solucion aleatoria..." << endl; 
+            
+            generarSolucion(p);
         } else { //desde mejor global
             if(Principal::debug)
-                cout << "Partiendo de mejor global..." << endl; 
+                cout << "Partiendo de mejor global..." << endl;         
+    
+            for(unsigned k = 0; k < tam; k++) {
+                p[k] = solucion[k];
+            }    
+            
+            tabuTam -= (tabuTam/2);
+            tabuActivo = tabuActivo * 0.95;
         }
     }
     
-    delete [] asignados;
+    delete [] asignados;    
     
-    if(Principal::debug)
-        cout << "Copiando a permutacion auxiliar..." << endl; 
-    
-    for(unsigned k = 0; k < tam; k++) {
-        p[k] = solucion[k];
-    }    
-    
-    reiniciarListaTabu();  
-    
-    if(random_t < 50) {
-        tabuTam += (tabuTam/2);
-        tabuActivo = tabuActivo * 0.95;
-    } else {
-        tabuTam -= (tabuTam/2);
-        tabuActivo = tabuActivo * 1.10;
-    }
+    reiniciarListaTabu();    
 }

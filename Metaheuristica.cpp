@@ -174,6 +174,10 @@ unsigned long Metaheuristica::calculaCoste(unsigned *p) {
 }
 
 void Metaheuristica::generarSolucion() {
+    generarSolucion(solucion);
+}
+
+void Metaheuristica::generarSolucion(unsigned* p) {
     bool* asignados = new bool[tam];
 
     for(unsigned i = 0; i < tam; i++) {
@@ -186,7 +190,7 @@ void Metaheuristica::generarSolucion() {
             valor = rand()%tam;
         }while(asignados[valor]);
 
-        solucion[i] = valor;
+        p[i] = valor;
         asignados[valor] = true;
     }
 

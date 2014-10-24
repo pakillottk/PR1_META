@@ -52,6 +52,10 @@ class Metaheuristica{
         void generarSolucion();
         //Genera una permutación aleatoria en
         //solución
+        
+       void generarSolucion(unsigned* p); 
+       //Genera una permutación aleatoria en p
+      
     public:
         Metaheuristica(const std::string& rutaFichero);
         virtual ~Metaheuristica();

@@ -18,7 +18,7 @@
 #include "Greedy.h"
 #include "BL.h"
 #include "BT.h"
-
+#include "Config_BT.h"
 using namespace std;
 
 enum Tipo_Algoritmo {ALG_Greedy, ALG_BL, ALG_BT};
@@ -40,6 +40,8 @@ class Principal {
         unsigned semilla; //Semilla para los generadores pseudoaleatorios       
         
         void construirAlgoritmo();
+        void configurarBT(Config_BT& config, bool& vecinos_prop,
+                          bool& reinicios_prop, bool& tabuActivo_prop);
         void activarDebug();        
         void elegirFichero();
         void elegirAlgoritmo();

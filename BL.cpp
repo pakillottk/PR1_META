@@ -48,9 +48,6 @@ unsigned long BL::ejecutar() {
                               //no encontrar mejoría en todo el entorno
 
     while(evaluaciones < 10000) {
-        if(Principal::debug)
-            std::cout << "EVALUACION: " << evaluaciones << std::endl;
-
         //Generamos y evaluamos los vecinos
         for(unsigned i = 0; i < tam; i++) {
             if(!dlb[i]) { //Si la posición está marcada en dlb, ignoramos
@@ -91,10 +88,10 @@ unsigned long BL::ejecutar() {
                     break;
                 }
             }
-        }
-
+        }    
+        
         evaluaciones++;
-
+        
         if(finBusqueda)
             break;
     }

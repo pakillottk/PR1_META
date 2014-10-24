@@ -25,6 +25,7 @@ class Greedy : public Metaheuristica {
         virtual ~Greedy();
 
         virtual unsigned long ejecutar();
+        static void alg_greedy(unsigned* s, unsigned** f, unsigned** d, unsigned tam);
 };
 
 #endif	/* GREEDY_H */

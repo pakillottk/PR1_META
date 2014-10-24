@@ -14,19 +14,27 @@
 #include <utility>
 #include "Principal.h"
 #include "Metaheuristica.h"
+#include "Greedy.h"
+#include "Config_BT.h"
 using namespace std;
+
 /*
  *      Clase que contiene la funcionalidad del
  *      algoritmo de Búsqueda Tabú.
  */
 class BT : public Metaheuristica {
     protected:
+        unsigned max_evaluaciones;
+        unsigned vecinos;
+        unsigned reinicio;       
         unsigned** frec; //Memoria a largo plazo
         unsigned** mem_tabu; //Memoria a corto plazo
         unsigned tabuActivo; //Determina cuantas iteraciones es tabú
                              //un movimiento
         unsigned tabuTam;    //Tamaño lista tabú
         list<pair<unsigned, unsigned> > movimientos;
+        
+        void llamarGreedy(unsigned* p, unsigned** f, unsigned** d, unsigned n);
         
         bool esTabu(unsigned*& p, unsigned i, unsigned j);
         //Indica si un movimiento es tabu activo o no
@@ -55,7 +63,8 @@ class BT : public Metaheuristica {
         //asignado a esa posición
         
     public:
-        BT(const std::string& rutaFichero);
+        BT(const std::string& rutaFichero, Config_BT config, bool vecinos_prop = false,
+           bool reinicios_prop = false, bool tabuActivo_prop = false);
         virtual ~BT();
 
         virtual unsigned long ejecutar();
